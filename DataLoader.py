@@ -15,11 +15,11 @@ from sklearn.utils import resample
 import warnings
 warnings.filterwarnings("ignore")
 
-cls_dit = {'Non-Ectopic Beats':0, 'Superventrical Ectopic':1, 'Ventricular Beats':2,
-                                                'Unknown':3, 'Fusion Beats':4}
+cls_dit = {'normal':0, 'gas lock':1, 'gas affect':2,
+                             'insufficient liquid supply':3, 'parting rod':4, 'valve leakage':5}
 
 class mitbih_train(Dataset):
-    def __init__(self, filename='./mitbih_train.csv', n_samples=20000, oneD=False):
+    def __init__(self, filename='/content/MyTest/power_train.csv', n_samples=2000, oneD=False):
         data_train = pd.read_csv(filename, header=None)
         
         # making the class labels for our dataset
@@ -28,6 +28,7 @@ class mitbih_train(Dataset):
         data_2 = data_train[data_train[187] == 2]
         data_3 = data_train[data_train[187] == 3]
         data_4 = data_train[data_train[187] == 4]
+        data_5 = data_train[data_train[187] == 5]
         
         data_0_resample = resample(data_0, n_samples=n_samples, 
                                    random_state=123, replace=True)
@@ -39,9 +40,12 @@ class mitbih_train(Dataset):
                                    random_state=123, replace=True)
         data_4_resample = resample(data_4, n_samples=n_samples, 
                                    random_state=123, replace=True)
+        data_5_resample = resample(data_5, n_samples=n_samples, 
+                                   random_state=123, replace=True)
+        
         
         train_dataset = pd.concat((data_0_resample, data_1_resample, 
-                                  data_2_resample, data_3_resample, data_4_resample))
+                         data_2_resample, data_3_resample, data_4_resample, data_5_resample))
         
         self.X_train = train_dataset.iloc[:, :-1].values
         if oneD:
@@ -52,7 +56,7 @@ class mitbih_train(Dataset):
             
         print(f'X_train shape is {self.X_train.shape}')
         print(f'y_train shape is {self.y_train.shape}')
-        print(f'The dataset including {len(data_0_resample)} class 0, {len(data_1_resample)} class 1, {len(data_2_resample)} class 2, {len(data_3_resample)} class 3, {len(data_4_resample)} class 4')
+        print(f'The dataset including {len(data_0_resample)} class 0, {len(data_1_resample)} class 1, {len(data_2_resample)} class 2, {len(data_3_resample)} class 3, {len(data_4_resample)} class 4, {len(data_5_resample)} class 5')
         
         
     def __len__(self):
@@ -63,7 +67,7 @@ class mitbih_train(Dataset):
     
     
 class mitbih_test(Dataset):
-    def __init__(self, filename='./mitbih_test.csv', n_samples=1000, oneD=False):
+    def __init__(self, filename='/content/MyTest/power_test.csv', n_samples=600, oneD=False):
         data_test = pd.read_csv(filename, header=None)
         
         # making the class labels for our dataset
@@ -72,6 +76,7 @@ class mitbih_test(Dataset):
         data_2 = data_test[data_test[187] == 2]
         data_3 = data_test[data_test[187] == 3]
         data_4 = data_test[data_test[187] == 4]
+        data_5 = data_test[data_test[187] == 5]
         
         data_0_resample = resample(data_0, n_samples=n_samples, 
                            random_state=123, replace=True)
@@ -82,6 +87,8 @@ class mitbih_test(Dataset):
         data_3_resample = resample(data_3, n_samples=n_samples, 
                                    random_state=123, replace=True)
         data_4_resample = resample(data_4, n_samples=n_samples, 
+                                   random_state=123, replace=True)
+        data_5_resample = resample(data_5, n_samples=n_samples, 
                                    random_state=123, replace=True)
         
         test_dataset = pd.concat((data_0_resample, data_1_resample, 
@@ -96,7 +103,7 @@ class mitbih_test(Dataset):
         
         print(f'X_test shape is {self.X_test.shape}')
         print(f'y_test shape is {self.y_test.shape}')
-        print(f'The dataset including {len(data_0)} class 0, {len(data_1)} class 1, {len(data_2)} class 2, {len(data_3)} class 3, {len(data_4)} class 4')
+        print(f'The dataset including {len(data_0)} class 0, {len(data_1)} class 1, {len(data_2)} class 2, {len(data_3)} class 3, {len(data_4)} class 4, {len(data_5)} class 5')
         
     def __len__(self):
         return len(self.y_test)
