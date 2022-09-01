@@ -12,11 +12,11 @@ from DataLoader import mitbih_train
 import warnings
 warnings.filterwarnings("ignore")
 
-cls_dit = {'Non-Ectopic Beats':0, 'Superventrical Ectopic':1, 'Ventricular Beats':2,
-                                                'Unknown':3, 'Fusion Beats':4}
+cls_dit = {'normal':0, 'gas lock':1, 'gas affect':2,
+                             'insufficient liquid supply':3, 'parting rod':4, 'valve leakage':5}
 
 class syn_mitbih(Dataset):
-    def __init__(self, n_samples = 20000, seq_len = 187, reshape = False, model_path='./mitbih_checkpoint'):
+    def __init__(self, n_samples = 2000, seq_len = 187, reshape = False, model_path='./mitbih_checkpoint'):
         
         gen_net = Generator(seq_len=seq_len, channels=1, num_classes=5, latent_dim=100, data_embed_dim=10, 
                     label_embed_dim=10 ,depth=3, num_heads=5, 
@@ -30,6 +30,7 @@ class syn_mitbih(Dataset):
         self.syn_2 = self.generate_synthetic_data(gen_net, 2, n_samples)
         self.syn_3 = self.generate_synthetic_data(gen_net, 3, n_samples)
         self.syn_4 = self.generate_synthetic_data(gen_net, 4, n_samples)
+        self.syn_5 = self.generate_synthetic_data(gen_net, 5, n_samples)
         
         # shape = n_samples, seq_len
         if reshape:
@@ -38,13 +39,14 @@ class syn_mitbih(Dataset):
             self.syn_2 = self.syn_2.reshape(self.syn_2.shape[0], 1, self.syn_2.shape[3])
             self.syn_3 = self.syn_3.reshape(self.syn_3.shape[0], 1, self.syn_3.shape[3])
             self.syn_4 = self.syn_4.reshape(self.syn_4.shape[0], 1, self.syn_4.shape[3])
+            self.syn_5 = self.syn_5.reshape(self.syn_5.shape[0], 1, self.syn_5.shape[3])
         
-        self.data = np.concatenate((self.syn_0, self.syn_1, self.syn_2, self.syn_3, self.syn_4), axis = 0)
-        self.labels = np.concatenate((np.array([0]*n_samples), np.array([1]*n_samples), np.array([2]*n_samples), np.array([3]*n_samples), np.array([4]*n_samples)))
+        self.data = np.concatenate((self.syn_0, self.syn_1, self.syn_2, self.syn_3, self.syn_4, self.syn_5), axis = 0)
+        self.labels = np.concatenate((np.array([0]*n_samples), np.array([1]*n_samples), np.array([2]*n_samples), np.array([3]*n_samples), np.array([4]*n_samples), np.array([5]*n_samples)))
             
         print(f'data shape is {self.data.shape}')
         print(f'labels shape is {self.labels.shape}')
-        print(f'The dataset including {n_samples} class 0, {n_samples} class 1, {n_samples} class 2, {n_samples} class 3, {n_samples} class 4')
+        print(f'The dataset including {n_samples} class 0, {n_samples} class 1, {n_samples} class 2, {n_samples} class 3, {n_samples} class 4, {n_samples} class 5')
         
     def generate_synthetic_data(self, gen_net, classlabel, n):
         fake_noise = torch.FloatTensor(np.random.normal(0, 1, (n, 100)))
